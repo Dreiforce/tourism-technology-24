@@ -1,5 +1,7 @@
 package local.triforce.sim;
 
+import local.triforce.model.World;
+
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +16,7 @@ public interface SimAPI {
     /**
      * better interface? get a world state in some form, do your stuff and return a new state
      * @param world
-     * @param ideas
      * @return
      */
-    String step(String world, List<String> ideas);
+    World step(World world);
 }

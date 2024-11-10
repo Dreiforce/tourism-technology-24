@@ -1,6 +1,6 @@
 package local.triforce.state;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import local.triforce.model.World;
 
 import java.util.List;
 
@@ -11,5 +11,5 @@ public interface StateAPI {
     List<String> getStationNames();
     long getPeopleAt(long timestamp, String station);
 
-    String generateWorld();
+    World generateWorld(long timestamp);
 }

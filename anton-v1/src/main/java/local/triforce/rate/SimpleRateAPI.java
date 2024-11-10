@@ -21,6 +21,7 @@ public class SimpleRateAPI implements RateAPI {
 
     /**
      * TODO improve
+     *
      * @return
      */
     @Override
@@ -32,13 +33,12 @@ public class SimpleRateAPI implements RateAPI {
 
     /**
      * TODO improve
+     *
      * @param rates
      * @return
      */
     @Override
     public double metaRate(Map<Long, Double> rates) {
-        //naive impl, just rate by just product of everything plus some small base
-        return rates.values().stream().mapToDouble(v -> v + 0.01)
-                .reduce((a, b) -> a * b).orElse(0);
+        return rates.values().stream().mapToDouble(a -> a).average().orElse(0);
     }
 }
