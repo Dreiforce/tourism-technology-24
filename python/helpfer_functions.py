@@ -42,7 +42,15 @@ def get_foerder_kappa_specific(lift_name: str):
     return {item['Anlage'].values[0]: {"theoretical_foerder_kapa": float(item.theor_foerder_kapa_h.values[0]),
                                        "practical_foerder_kapa": float(item.practical_foerder_kapa_h.values[0])}}
 
+def get_lift_names(filename="Export03Mar24.csv"):
+    df = pd.read_csv(
+        f'data/skiing_data/Daten Bergbahnen SFL - Tourism Technology 24/Frequenzdaten SFL Winter 2023-24/{filename}',
+        encoding='latin-1', delimiter=';')
 
+    lift_util = []
+    for lift in df.Lift.unique():
+        lift_util.append(lift)
+    return lift_util
 def get_lift_event_history(current_time, own_df=None, time_window_in_min=15, filename="Export03Mar24.csv"):
     if own_df is None:
         df = pd.read_csv(

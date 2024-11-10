@@ -1,27 +1,33 @@
 package local.triforce.anton;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import local.triforce.model.Slope;
 import local.triforce.model.World;
 import local.triforce.rate.RateAPI;
 import local.triforce.rate.SimpleRateAPI;
 import local.triforce.sim.SimpleSimExample;
 import local.triforce.sim.SimAPI;
+import local.triforce.state.CacheAPI;
 import local.triforce.state.MockStateAPI;
 import local.triforce.state.StateAPI;
+import local.triforce.state.UseRealAPI;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.lang.Math.random;
 
 public class Anton implements Runnable {
-    private final int rounds = 100;
+    private final int rounds = 10;
     private RateAPI rate = new SimpleRateAPI();
     private SimAPI sim = new SimpleSimExample();
-    private StateAPI state = new MockStateAPI();
+    private StateAPI state = new CacheAPI(new UseRealAPI());
     private ObjectMapper mapper = new ObjectMapper();
 
     public static void main(String[] args) {
@@ -36,9 +42,22 @@ public class Anton implements Runnable {
         long consecutiveFails = 0;
         double best = 0;
         List<String> bestIdeas = null;
-        long t = System.currentTimeMillis();//TODO;
+        Random random = new Random();
+
+        // 2024-03-03 07:00:00
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        long t = 0;
+        try {
+            t = simpleDateFormat.parse("2024-03-03 08:00:00").getTime();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
 
         Map<String, List<Long>> csv = new TreeMap<>();
+
+
+        List<String> stationNames = state.getStationNames();
 
         long id = 0;
         while (true) {
@@ -51,23 +70,19 @@ public class Anton implements Runnable {
 
             //apply ideas
             List<String> ideas = new ArrayList<>();
-            double skew = Math.random() * 0.4 - 0.2;
-            if (skew < 0) {
-                ideas.add("Adding incentive to go to stationA with x = " + -skew);
-            } else {
-                ideas.add("Adding incentive to go to stationB with x = " + skew);
-            }
-            world.getSlopes().stream().filter(s -> s.getTo().equals("stationA")).findAny().ifPresent(
-                    slope -> slope.setFunlevel(slope.getFunlevel() - skew)
+            Slope s = new Slope(
+                    0, 10, 1,
+                    stationNames.get(random.nextInt(stationNames.size())),
+                    stationNames.get(random.nextInt(stationNames.size()))
             );
-            world.getSlopes().stream().filter(s -> s.getTo().equals("stationB")).findAny().ifPresent(
-                    slope -> slope.setFunlevel(slope.getFunlevel() + skew)
-            );
+            world.getSlopes().add(s);
+            ideas.add("adding incentive to go from " + s.getFrom() + " -> " + s.getTo());
+
 
 //simulate for a bit
             for (int i = 0; i < rounds; i++) {
                 world = sim.step(world);
-                rates.put(t + i, rate.rate(world.getPeopleAtStation()));
+                rates.put(t + i * 1000 * 60 * 15, rate.rate(world.getPeopleAtStation()));
 
 
                 world.getPeopleAtStation().forEach((key, v) -> {

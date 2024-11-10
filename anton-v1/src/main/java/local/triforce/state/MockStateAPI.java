@@ -31,21 +31,16 @@ public class MockStateAPI implements StateAPI {
         getStationNames().forEach(stationName -> {
             peopleAt.put(stationName, getPeopleAt(timestamp, stationName));
         });
-
         World world = new World();
         world.setPeopleAtStation(peopleAt);
-
         world.setLifts(List.of(
                 new Lift(100, "stationA", "Bergstation"), // Lift 1
                 new Lift(100, "stationB", "Bergstation") // Lift 2
         ));
-
-
         world.setSlopes(List.of(
                 new Slope(0, 0.3, 0.4, "Bergstation", "stationA"),
                 new Slope(0, 0.5, 0.6, "Bergstation", "stationB")
         ));
-
         return world;
     }
 }
